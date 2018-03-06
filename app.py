@@ -11,8 +11,10 @@
 import feedparser
 import pymysql.cursors
 
+import html_parser
 import config
 import feeds
+
 print('start')
 connection = pymysql.connect(
     host=config.DATABASES['HOST'],
@@ -32,16 +34,15 @@ for url in feeds.URLS:
         print(item['published'])
         print(item['updated'])
         print(item['content'][0]['value'][0:200])
+        body = html_parser.strip_tags(item['content'][0]['value'])[0:200]
         
         with connection.cursor() as cursor:
-            sql = "INSERT INTO feeds (`title`,`url`) VALUES (%s, %s)"
-            r = cursor.execute(sql, (item['title'],item['link']))
+            sql = "INSERT INTO feeds (`title`,`url`,`body`) VALUES (%s,%s,%s)"
+            r = cursor.execute(sql, (item['title'],item['link'],body))
             print(r) # -> 1
             # autocommitではないので、明示的にコミットする
             connection.commit()
-
-        
-
+            
 connection.close()
 
 
