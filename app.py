@@ -10,7 +10,8 @@
 
 import feedparser
 import pymysql.cursors
-from datetime import datetime
+# from datetime import datetime
+from dateutil.parser import parse
 
 import html_parser
 import config
@@ -27,14 +28,13 @@ connection = pymysql.connect(
 cursor = connection.cursor()
 
 try:
-    for i in feeds.URLS:
-        print(i)
-        d = feedparser.parse(i['url'])
+    for url in feeds.URLS:
+        d = feedparser.parse(url)
         feeds = []
         for item in d['entries']:
             print(item['title'])
             print(item['link'])
-            published = datetime.strptime(item['published'],i['tfmt']).strftime('%Y-%m-%d %H:%M:%S')
+            published = parse(item['published']).strftime('%Y-%m-%d %H:%M:%S')
             print(published)
             print(item['updated'])
     #         print(item['content'][0]['value'][0:200])
